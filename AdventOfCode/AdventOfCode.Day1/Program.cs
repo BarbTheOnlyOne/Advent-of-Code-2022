@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-var filePath = @"C:\Programování\Advent-of-Code-2022\AdventOfCode\AdventOfCode.Day1\input.txt";
+﻿var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "input.txt");
 
 var loadedFile = File.ReadLines(filePath);
 
