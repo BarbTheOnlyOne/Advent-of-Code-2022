@@ -34,6 +34,7 @@ void PartOne(List<int> dirSizes)
     Console.WriteLine(sum);
 }
 
+/// Not working correctly maybe go throught the file system to find mistake
 void PartTwo(ElvishTerminal terminal, List<int> dirSizes)
 {
     int maximumDiskSpace = 70000000;

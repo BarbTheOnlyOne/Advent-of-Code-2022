@@ -95,6 +95,8 @@
         {
             List<int> sizes = new();
 
+            sizes.Add(directory.GetDirectoryContentSize());
+
             foreach (var item in directory.DirectoryContent)
             {
                 if (item is ElvishDirectory)

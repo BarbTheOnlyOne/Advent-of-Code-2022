@@ -22,9 +22,19 @@ namespace AdventOfCode.Day7
 
         public void AddDirectoryContent(ElvishObject content)
         {
-            if (!DirectoryContent.Any(item => item.Name == content.Name))
+            if (content is ElvishFile)
             {
-                DirectoryContent.Add(content);
+                if (!DirectoryContent.Where(item => item is ElvishFile).Any(item => item.Name == content.Name))
+                {
+                    DirectoryContent.Add(content);
+                }
+            }
+            else if (content is ElvishDirectory)
+            {
+                if (!DirectoryContent.Where(item => item is ElvishDirectory).Any(item => item.Name == content.Name))
+                {
+                    DirectoryContent.Add(content);
+                }
             }
         }
 
