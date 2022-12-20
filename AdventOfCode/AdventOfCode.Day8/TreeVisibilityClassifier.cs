@@ -23,68 +23,141 @@ namespace AdventOfCode.Day8
 
         public void DoVisibilityClassification()
         {
-
+            ClassifyMapFromTop();
+            ClassifyMapFromBottom();
+            ClassifyMapFromLeft();
+            ClassifyMapFromRight();
         }
 
-
-        /// <summary>
-        ///     Sets the initial visibility of outer trees.
-        ///     Meaning all top trees are visible from the top since they are on the edge, etc.
-        /// </summary>
-        /// <param name="treeMap"></param>
-        public  void ClassifyOuterTrees(Tree[,] treeMap)
+        private void ClassifyMapFromTop()
         {
-            ClassifyTopAndBottom(treeMap);
-            ClassifyRightAndLeft(treeMap);
-        }
-
-        public static void ClassifyInnerTreesFromLeft(Tree[,] treeMap)
-        {
-            for (int i = 1; i < treeMap.GetLength(0) - 1; i++) // gets the number of rows
+            for (int i = 0; i < TreeMapColumnCount; i++)
             {
-                for (int j = 1; j < treeMap.GetLength(1) -1; j++) // gets the number of columns
+                // first classify the first two rows
+                var firstRowTree = _treeMap[0, i];
+                firstRowTree.TopVisibility = Visibility.Visible;
+
+                var secondRowTree = _treeMap[1, i];
+                secondRowTree.TopVisibility = firstRowTree.TreeHeight >= secondRowTree.TreeHeight ?
+                    Visibility.Hidden : Visibility.Visible;
+
+                int biggestHeightInRow = firstRowTree.TreeHeight > secondRowTree.TreeHeight ? firstRowTree.TreeHeight : secondRowTree.TreeHeight;
+
+                // now the rest of the rows
+                for (int j = 2; j < TreeMapRowCount; j++)
                 {
-                    var classifiedTree = treeMap[i, j];
+                    var classifiedTree = _treeMap[j, i];
+                    var treeInFront = _treeMap[j - 1, i];
 
-                    var topTree = treeMap[i, j];
-                    var bottomTree = treeMap[i, j];
-                    var leftTree = treeMap[i, j];
-                    var rightTree = treeMap[i, j];
-
-                    // TODO
+                    ClassifyTree(classifiedTree, treeInFront, ref biggestHeightInRow);
                 }
             }
         }
 
-        private void ClassifyOuterTopRow()
+        private void ClassifyMapFromBottom()
         {
             for (int i = 0; i < TreeMapColumnCount; i++)
             {
-                var classifiedTree = _treeMap[0, i];
-                classifiedTree.TopVisibility = Visibility.Visible;
+                // first classify the first two rows
+                var firstRowTree = _treeMap[TreeMapRowCount, i];
+                firstRowTree.TopVisibility = Visibility.Visible;
 
+                var secondRowTree = _treeMap[TreeMapRowCount - 1, i];
+                secondRowTree.TopVisibility = firstRowTree.TreeHeight >= secondRowTree.TreeHeight ?
+                    Visibility.Hidden : Visibility.Visible;
+
+                int biggestHeightInRow = firstRowTree.TreeHeight > secondRowTree.TreeHeight ? firstRowTree.TreeHeight : secondRowTree.TreeHeight;
+                
+                // now the rest of the rows
+                for (int j = TreeMapRowCount - 2; j > 0; j--)
+                {
+                    var classifiedTree = _treeMap[j, i];
+                    var treeInFront = _treeMap[j + 1, i];
+
+                    ClassifyTree(classifiedTree, treeInFront, ref biggestHeightInRow);
+                }
             }
         }
 
-        private  void ClassifyRightAndLeft(Tree[,] treeMap)
+        private void ClassifyMapFromLeft()
         {
-            for (int i = 0; i < treeMap.GetLength(0); i++)
+            for (int i = 0; i < TreeMapRowCount; i++)
             {
-                treeMap[i, 0].LeftVisibility = Visibility.Visible;
-                treeMap[i, treeMap.GetLength(1)].RightVisibility = Visibility.Visible;
+                // first classify the first two rows
+                var firstRowTree = _treeMap[i, 0];
+                firstRowTree.TopVisibility = Visibility.Visible;
+
+                var secondRowTree = _treeMap[i, 1];
+                secondRowTree.TopVisibility = firstRowTree.TreeHeight >= secondRowTree.TreeHeight ?
+                    Visibility.Hidden : Visibility.Visible;
+
+                int biggestHeightInRow = firstRowTree.TreeHeight > secondRowTree.TreeHeight ? firstRowTree.TreeHeight : secondRowTree.TreeHeight;
+
+                // now the rest of the rows
+                for (int j = 2; j < TreeMapColumnCount; j++)
+                {
+                    var classifiedTree = _treeMap[i, j];
+                    var treeInFront = _treeMap[i, j - 1];
+
+                    ClassifyTree(classifiedTree, treeInFront, ref biggestHeightInRow);
+                }
             }
         }
 
-        private  void ClassifyTopAndBottom(Tree[,] treeMap)
+        private void ClassifyMapFromRight()
         {
-            for (int i = 0; i < treeMap.GetLength(1); i++)
+            for (int i = 0; i < TreeMapRowCount; i++)
             {
-                treeMap[0, i].TopVisibility = Visibility.Visible;
-                treeMap[0, i].BottomVisibility = treeMap[1, i].TreeHeight < treeMap[0, i].TreeHeight ? Visibility.Visible : Visibility.Hidden;
+                // first classify the first two rows
+                var firstRowTree = _treeMap[i, TreeMapColumnCount];
+                firstRowTree.TopVisibility = Visibility.Visible;
 
-                treeMap[treeMap.GetLength(0), i].BottomVisibility = Visibility.Visible;
-                treeMap[treeMap.GetLength(0), i].TopVisibility =
-                    treeMap[treeMap.GetLength(0) - 1, i].TreeHeight < treeMap[treeMap.GetLength(0), i].TreeHeight ? Visibility.Visible : Visibility.Hidden;
+                var secondRowTree = _treeMap[i, TreeMapColumnCount - 1];
+                secondRowTree.TopVisibility = firstRowTree.TreeHeight >= secondRowTree.TreeHeight ?
+                    Visibility.Hidden : Visibility.Visible;
+
+                int biggestHeightInRow = firstRowTree.TreeHeight > secondRowTree.TreeHeight ? firstRowTree.TreeHeight : secondRowTree.TreeHeight;
+
+                // now the rest of the rows
+                for (int j = TreeMapColumnCount - 2; j > 0; j--)
+                {
+                    var classifiedTree = _treeMap[i, j];
+                    var treeInFront = _treeMap[i, j + 1];
+
+                    ClassifyTree(classifiedTree, treeInFront, ref biggestHeightInRow);
+                }
+            }
+        }
+
+        private void ClassifyTree(Tree classifiedTree, Tree treeInFront, ref int biggestHeightInRow)
+        {
+            switch (treeInFront.TopVisibility)
+            {
+                case Visibility.Visible:
+                    if (classifiedTree.TreeHeight > treeInFront.TreeHeight)
+                    {
+                        classifiedTree.TopVisibility = Visibility.Visible;
+                        biggestHeightInRow = classifiedTree.TreeHeight;
+                    }
+                    else
+                    {
+                        classifiedTree.TopVisibility = Visibility.Hidden;
+                    }
+
+                    break;
+
+                case Visibility.Hidden:
+                    if (classifiedTree.TreeHeight > biggestHeightInRow)
+                    {
+                        classifiedTree.TopVisibility = Visibility.Visible;
+                        biggestHeightInRow = classifiedTree.TreeHeight;
+                    }
+                    else
+                    {
+                        classifiedTree.TopVisibility = Visibility.Hidden;
+                    }
+
+                    break;
             }
         }
     }
